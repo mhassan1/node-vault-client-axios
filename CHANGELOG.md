@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.0] - 2022-02-08
+[0.7.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.6.2...v0.7.0
+
+- Add `region` support to iam auth backend
+
 ## [0.6.2] - 2021-11-17
 [0.6.2]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.6.1...v0.6.2
 
