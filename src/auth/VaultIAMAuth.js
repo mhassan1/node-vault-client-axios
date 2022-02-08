@@ -30,7 +30,8 @@ const errors = require('../errors');
  *               credentials: new AWS.Credentials({
  *                 accessKeyId: AWS_ACCESS_KEY,
  *                 secretAccessKey: AWS_SECRET_KEY,
- *               })
+ *               }),
+ *               region: AWS_REGION                        // Optional
  *           }
  *       }
  *   })
@@ -45,6 +46,7 @@ class VaultIAMAuth extends VaultBaseAuth {
      * @param {Object} config
      * @param {String} config.role - Role name of the auth/{mount}/role/{name} backend.
      * @param {AWS.Credentials|AWS.Credentials[]} config.credentials {@see AWS.CredentialProviderChain providers}
+     * @param {AWS.ConfigurationOptions.region} [config.region] Optional. Specify this to use an STS regional endpoint. {@see AWS.ConfigurationOptions.region}
      * @param {String} [config.iam_server_id_header_value] - Optional. Header's value X-Vault-AWS-IAM-Server-ID.
      * @param {String} mount - Vault's AWS Auth Backend mount point ("aws" by default)
      */
@@ -67,6 +69,10 @@ class VaultIAMAuth extends VaultBaseAuth {
         this.__credentialChain = new AWS.CredentialProviderChain(
             credentialsProviders
         );
+
+        this.__stsHostname = config.region
+          ? `sts.${config.region}.amazonaws.com`
+          : undefined
     }
 
     /**
@@ -138,6 +144,7 @@ class VaultIAMAuth extends VaultBaseAuth {
     __getStsRequest(credentials) {
         return aws4.sign({
             service: 'sts',
+            hostname: this.__stsHostname,
             method: 'POST',
             body: 'Action=GetCallerIdentity&Version=2011-06-15',
             headers: this.__iam_server_id_header_value ? {

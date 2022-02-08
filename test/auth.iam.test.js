@@ -40,7 +40,8 @@ describe('Unit AWS auth backend :: IAM', function () {
                 {
                     role: 'MyRole',
                     iam_server_id_header_value: 'https://vault.fake.com',
-                    credentials: new AWS.Credentials('FAKE_AWS_ACCESS_KEY', 'FAKE_AWS_SECRET_KEY')
+                    credentials: new AWS.Credentials('FAKE_AWS_ACCESS_KEY', 'FAKE_AWS_SECRET_KEY'),
+                    region: 'us-east-2'
                 },
                 'fake_aws'
             );
@@ -56,7 +57,7 @@ describe('Unit AWS auth backend :: IAM', function () {
             expect(args[2].iam_http_request_method).to.equal('POST');
             expect(args[2].role).to.equal('MyRole');
             expect(base64decode(args[2].iam_request_body)).to.equal('Action=GetCallerIdentity&Version=2011-06-15');
-            expect(base64decode(args[2].iam_request_url)).to.equal('https://sts.amazonaws.com/');
+            expect(base64decode(args[2].iam_request_url)).to.equal('https://sts.us-east-2.amazonaws.com/');
             const headers = JSON.parse(base64decode(args[2].iam_request_headers));
             expect(headers['X-Vault-AWS-IAM-Server-ID']).to.deep.equal(['https://vault.fake.com']);
             expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY'));
