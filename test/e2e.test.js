@@ -4,6 +4,7 @@ const deepFreeze = require('deep-freeze');
 const axios = require('axios');
 const _ = require('lodash');
 const chai = require('chai');
+const lt = require('long-timeout');
 const expect = chai.expect;
 const loadVault = require('./vaultLoader');
 const VaultClient = require('../src/VaultClient');
@@ -147,6 +148,8 @@ describe('E2E', function () {
 
                 const res = await vaultClient.read('secret/tst-val');
                 expect(res.getData()).is.deep.equal(testData);
+
+                lt.clearTimeout(vaultClient.__auth.__refreshTimeout);
             });
 
             it('with secret ID', async function () {
@@ -174,6 +177,8 @@ describe('E2E', function () {
 
                 const res = await vaultClient.read('secret/tst-val');
                 expect(res.getData()).is.deep.equal(testData);
+
+                lt.clearTimeout(vaultClient.__auth.__refreshTimeout);
             });
         });
     });
