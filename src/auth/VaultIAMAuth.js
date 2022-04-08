@@ -27,7 +27,10 @@ const errors = require('../errors');
  *           config: {
  *               role: 'my_iam_role',
  *               iam_server_id_header_value: VAULT_ADDR,   // Optional
- *               credentials: defaultProvider(),           // from `@aws-sdk/credential-provider-node`
+ *               credentials: new AWS.Credentials({
+ *                 accessKeyId: AWS_ACCESS_KEY,
+ *                 secretAccessKey: AWS_SECRET_KEY,
+ *               }),
  *               region: AWS_REGION                        // Optional
  *           }
  *       }
@@ -42,22 +45,30 @@ class VaultIAMAuth extends VaultBaseAuth {
      * @param {Object} logger
      * @param {Object} config
      * @param {String} config.role - Role name of the auth/{mount}/role/{name} backend.
-     * @param {Object|()=>Promise<Object>} config.credentials Either an AWS `Credentials` object, or an `async` function that returns one, see `@aws-sdk/credential-provider-node`
-     * @param {String} [config.region] Optional. Specify this to use an STS regional endpoint.
+     * @param {AWS.Credentials|AWS.Credentials[]} config.credentials {@see AWS.CredentialProviderChain providers}
+     * @param {AWS.ConfigurationOptions.region} [config.region] Optional. Specify this to use an STS regional endpoint. {@see AWS.ConfigurationOptions.region}
      * @param {String} [config.iam_server_id_header_value] - Optional. Header's value X-Vault-AWS-IAM-Server-ID.
      * @param {String} mount - Vault's AWS Auth Backend mount point ("aws" by default)
      */
     constructor(api, logger, config, mount) {
         super(api, logger, mount || 'aws');
 
+        const AWS = require('aws-sdk');
+
         this.__role = config.role;
         this.__iam_server_id_header_value = config.iam_server_id_header_value;
 
-        if (!config.credentials) {
-            throw new errors.InvalidAWSCredentialsError('Credentials must be provided.')
+        if (!(config.credentials instanceof AWS.Credentials) && !_.isArray(config.credentials)) {
+            throw new errors.InvalidAWSCredentialsError('Credentials must be provided. {AWS.Credentials|AWS.Credentials[]} or function-providers, which return them.')
         }
 
-        this.__credentialProvider = config.credentials
+        const credentialsProviders = _.isArray(config.credentials)
+            ? config.credentials
+            : [config.credentials];
+
+        this.__credentialChain = new AWS.CredentialProviderChain(
+            credentialsProviders
+        );
 
         this.__stsHostname = config.region
           ? `sts.${config.region}.amazonaws.com`
@@ -92,15 +103,17 @@ class VaultIAMAuth extends VaultBaseAuth {
     }
 
     /**
-     * Credentials
+     * Credentials resolved by {@see AWS.CredentialProviderChain}
      *
-     * @returns {Object|Promise<Object>}
+     * @returns {Promise<AWS.Credentials>}
      * @private
      */
     __getCredentials() {
-          return typeof this.__credentialProvider === 'function'
-              ? this.__credentialProvider()
-              : this.__credentialProvider
+        return new Promise((resolve, reject) =>
+            this.__credentialChain.resolve((err, credentials) =>
+                err ? reject(err) : resolve(credentials)
+            )
+        );
     }
 
     /**
