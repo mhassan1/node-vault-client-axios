@@ -84,7 +84,7 @@ describe('Unit AWS auth backend :: IAM', function () {
             return {api, auth};
         }
 
-        it('Should work correctly with {AWS.Credentials}', async function () {
+        it('Should work correctly with {AWS.Credentials} for AWS SDK v2', async function () {
             const instance = instantiate(new AWS.Credentials('FAKE_AWS_ACCESS_KEY', 'FAKE_AWS_SECRET_KEY'));
 
             await instance.auth._authenticate();
@@ -95,7 +95,7 @@ describe('Unit AWS auth backend :: IAM', function () {
             expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY'));
         });
 
-        it('Should work correctly with {AWS.Credentials[]}', async function () {
+        it('Should work correctly with {AWS.Credentials[]} for AWS SDK v2', async function () {
             const instance = instantiate([
                 new AWS.Credentials('FAKE_AWS_ACCESS_KEY2', 'FAKE_AWS_SECRET_KEY2'),
                 new AWS.Credentials('FAKE_AWS_ACCESS_KEY', 'FAKE_AWS_SECRET_KEY'),
@@ -109,10 +109,35 @@ describe('Unit AWS auth backend :: IAM', function () {
             expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY2'));
         });
 
-        it('Should work correctly with AWS.Credentials Provider ({() => AWS.Credentials})', async function () {
+        it('Should work correctly with AWS.Credentials Provider ({() => AWS.Credentials}) for AWS SDK v2', async function () {
             const instance = instantiate(
                 [() => new AWS.Credentials('FAKE_AWS_ACCESS_KEY2', 'FAKE_AWS_SECRET_KEY2')]
             );
+
+            await instance.auth._authenticate();
+
+            const args = instance.api.makeRequest.getCall(0).args;
+            const headers = JSON.parse(base64decode(args[2].iam_request_headers));
+
+            expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY2'));
+        });
+
+        it('Should work correctly with a plain {Credentials} object', async function () {
+            const instance = instantiate({ accessKeyId: 'FAKE_AWS_ACCESS_KEY', secretAccessKey: 'FAKE_AWS_SECRET_KEY' });
+
+            await instance.auth._authenticate();
+
+            const args = instance.api.makeRequest.getCall(0).args;
+            const headers = JSON.parse(base64decode(args[2].iam_request_headers));
+
+            expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY'));
+        });
+
+        it('Should work correctly with {Provider<Credentials>} for AWS SDK v3', async function () {
+            const instance = instantiate(async () => ({
+                accessKeyId: 'FAKE_AWS_ACCESS_KEY2',
+                secretAccessKey: 'FAKE_AWS_SECRET_KEY2'
+            }));
 
             await instance.auth._authenticate();
 
