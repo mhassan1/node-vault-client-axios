@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.0] - 2022-04-08
+[0.8.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.7.0...v0.8.0
+
+- Change `credentials` to match aws sdk v3 in iam auth backend
+
 ## [0.7.0] - 2022-02-08
 [0.7.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.6.2...v0.7.0
 
