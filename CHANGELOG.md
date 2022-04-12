@@ -4,6 +4,9 @@
 [0.8.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.7.0...v0.8.0
 
 - Add support for aws sdk v3 `credentials` in iam auth backend
+  - **BREAKING CHANGE:** aws sdk v2 credential providers must be provided as an array
+    (e.g. `credentials: [new AWS.ProcessCredentials()]`, instead of
+    `credentials: new AWS.ProcessCredentials()`)
 
 ## [0.7.0] - 2022-02-08
 [0.7.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.6.2...v0.7.0
