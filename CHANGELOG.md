@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.0] - 2022-07-18
+[0.9.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.8.0...v0.9.0
+
+- Add response data to Vault API error message
+
 ## [0.8.0] - 2022-04-08
 [0.8.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.7.0...v0.8.0
 
