@@ -4,6 +4,8 @@ const axios = require('axios');
 const urljoin = require('url-join');
 const _ = require('lodash');
 
+const errors = require('./errors')
+
 class VaultApiClient {
 
     /**
@@ -45,6 +47,24 @@ class VaultApiClient {
                     JSON.stringify(response.data, null, ' ')
                 );
                 return response.data;
+            })
+            .catch((err) => {
+                if (err.response) {
+                    this._logger.error('%s %s response status: %s response body:\n%s',
+                        requestOptions.method,
+                        requestOptions.url,
+                        err.response.status,
+                        JSON.stringify(err.response.data, null, ' ')
+                    );
+                    throw new errors.VaultApiError(`Request to Vault failed with ${err.response.status} response: ${JSON.stringify(err.response.data)}`);
+                } else {
+                    this._logger.error('%s %s error: %s',
+                        requestOptions.method,
+                        requestOptions.url,
+                        err.message
+                    );
+                    throw new errors.VaultApiError(`Request to Vault failed with error: ${err.message}`)
+                }
             });
     }
 }
