@@ -4,6 +4,7 @@ node_js:
   - node
 os: linux
 arch: arm64
+dist: focal
 env:
   - VAULT_VERSION=0.7.2
   - VAULT_VERSION=0.8.2
