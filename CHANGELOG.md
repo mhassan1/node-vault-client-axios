@@ -4,6 +4,7 @@
 [0.10.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.9.0...v0.10.0
 
 - Drop support for node 12 and below
+- Bump `axios` to v1
 
 ## [0.9.0] - 2022-07-18
 [0.9.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.8.0...v0.9.0
