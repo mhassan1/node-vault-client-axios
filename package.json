@@ -4,7 +4,7 @@
   "description": "A Vault Client implemented in pure javascript for HashiCorp Vault. It supports variety of Auth Backends and performs lease renewal for issued auth token.",
   "repository": "github:mhassan1/node-vault-client-axios",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=14.0.0"
   },
   "main": "src/VaultClient.js",
   "types": "src/VaultClient.d.ts",
@@ -20,7 +20,7 @@
   "dependencies": {
     "assign-deep": "^1.0.1",
     "aws4": "^1.8.0",
-    "axios": "^0.24.0",
+    "axios": "^1.2.3",
     "bluebird": "^3.7.0",
     "lodash": "^4.17.21",
     "long-timeout": "^0.1.1",
