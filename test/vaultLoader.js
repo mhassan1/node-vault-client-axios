@@ -18,7 +18,7 @@ function pKiller(processRef) {
 
 module.exports = function () {
     return new Promise(function (resolve, reject) {
-        const processRef = child_process.spawn('/usr/local/bin/vault', ['server', '-dev']);
+        const processRef = child_process.spawn('vault', ['server', '-dev-kv-v1']);
 
         let dataAcc = '';
         processRef.stdout.on('data', function(data) {
@@ -27,7 +27,7 @@ module.exports = function () {
             }
 
             dataAcc += data.toString(); //we receive binary data here
-            const found = dataAcc.match(/Root Token: ([a-z0-9\-]+)\n/i);
+            const found = dataAcc.match(/Root Token: ([a-z0-9\-.]+)\n/i);
 
             if (found !== null) {
                 dataAcc = null;
