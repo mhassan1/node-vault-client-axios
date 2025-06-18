@@ -159,7 +159,7 @@ class VaultIAMAuth extends VaultBaseAuth {
      * @private
      */
     __base64encode(string) {
-        return new Buffer(string).toString('base64')
+        return Buffer.from(string).toString('base64')
     }
 
     /**
