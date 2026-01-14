@@ -8,7 +8,6 @@ const errors = require('../src/errors');
 const sinon = require('sinon');
 const chai = require('chai');
 const expect = chai.expect;
-const AWS = require('aws-sdk');
 chai.use(require('sinon-chai'));
 
 const logger = _.fromPairs(_.map(['error', 'warn', 'info', 'debug', 'trace'], (prop) => [prop, _.noop]));
@@ -40,7 +39,7 @@ describe('Unit AWS auth backend :: IAM', function () {
                 {
                     role: 'MyRole',
                     iam_server_id_header_value: 'https://vault.fake.com',
-                    credentials: new AWS.Credentials('FAKE_AWS_ACCESS_KEY', 'FAKE_AWS_SECRET_KEY'),
+                    credentials: { accessKeyId: 'FAKE_AWS_ACCESS_KEY', secretAccessKey: 'FAKE_AWS_SECRET_KEY' },
                     region: 'us-east-2'
                 },
                 'fake_aws'
@@ -84,44 +83,6 @@ describe('Unit AWS auth backend :: IAM', function () {
             return {api, auth};
         }
 
-        it('Should work correctly with {AWS.Credentials} for AWS SDK v2', async function () {
-            const instance = instantiate(new AWS.Credentials('FAKE_AWS_ACCESS_KEY', 'FAKE_AWS_SECRET_KEY'));
-
-            await instance.auth._authenticate();
-
-            const args = instance.api.makeRequest.getCall(0).args;
-            const headers = JSON.parse(base64decode(args[2].iam_request_headers));
-
-            expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY'));
-        });
-
-        it('Should work correctly with {AWS.Credentials[]} for AWS SDK v2', async function () {
-            const instance = instantiate([
-                new AWS.Credentials('FAKE_AWS_ACCESS_KEY2', 'FAKE_AWS_SECRET_KEY2'),
-                new AWS.Credentials('FAKE_AWS_ACCESS_KEY', 'FAKE_AWS_SECRET_KEY'),
-            ]);
-
-            await instance.auth._authenticate();
-
-            const args = instance.api.makeRequest.getCall(0).args;
-            const headers = JSON.parse(base64decode(args[2].iam_request_headers));
-
-            expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY2'));
-        });
-
-        it('Should work correctly with AWS.Credentials Provider ({() => AWS.Credentials}) for AWS SDK v2', async function () {
-            const instance = instantiate(
-                [() => new AWS.Credentials('FAKE_AWS_ACCESS_KEY2', 'FAKE_AWS_SECRET_KEY2')]
-            );
-
-            await instance.auth._authenticate();
-
-            const args = instance.api.makeRequest.getCall(0).args;
-            const headers = JSON.parse(base64decode(args[2].iam_request_headers));
-
-            expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY2'));
-        });
-
         it('Should work correctly with a plain {Credentials} object', async function () {
             const instance = instantiate({ accessKeyId: 'FAKE_AWS_ACCESS_KEY', secretAccessKey: 'FAKE_AWS_SECRET_KEY' });
 
@@ -133,7 +94,7 @@ describe('Unit AWS auth backend :: IAM', function () {
             expect(headers['Authorization'][0]).to.match(getAuthorizationHeaderRegExp('FAKE_AWS_ACCESS_KEY'));
         });
 
-        it('Should work correctly with {Provider<Credentials>} for AWS SDK v3', async function () {
+        it('Should work correctly with {Provider<Credentials>} for AWS SDK', async function () {
             const instance = instantiate(async () => ({
                 accessKeyId: 'FAKE_AWS_ACCESS_KEY2',
                 secretAccessKey: 'FAKE_AWS_SECRET_KEY2'

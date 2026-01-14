@@ -42,10 +42,9 @@ class VaultIAMAuth extends VaultBaseAuth {
      * @param {Object} logger
      * @param {Object} config
      * @param {String} config.role - Role name of the auth/{mount}/role/{name} backend.
-     * @param {AWS.Credentials|AWS.Credentials[]|()=>Promise<AWS.Credentials>} config.credentials Either an AWS `Credentials` object (v2 or v3),
-     * or an array of AWS `Credentials` objects to pass to `AWS.CredentialProviderChain` (v2)
-     * or an AWS `Provider<Credentials>` function (v3, see `@aws-sdk/credential-provider-node`)
-     * @param {AWS.ConfigurationOptions.region} [config.region] Optional. Specify this to use an STS regional endpoint. {@see AWS.ConfigurationOptions.region}
+     * @param {aws4.Credentials|()=>Promise<aws4.Credentials>} config.credentials Either an AWS `Credentials` object,
+     * or an AWS `Provider<Credentials>` function (see `@aws-sdk/credential-provider-node`)
+     * @param {String} [config.region] Optional. Specify this to use an STS regional endpoint.
      * @param {String} [config.iam_server_id_header_value] - Optional. Header's value X-Vault-AWS-IAM-Server-ID.
      * @param {String} mount - Vault's AWS Auth Backend mount point ("aws" by default)
      */
@@ -96,20 +95,10 @@ class VaultIAMAuth extends VaultBaseAuth {
     /**
      * AWS Credentials
      *
-     * @returns {AWS.Credentials|Promise<AWS.Credentials>}
+     * @returns {aws4.Credentials|Promise<aws4.Credentials>}
      * @private
      */
     __getCredentials() {
-        if (Array.isArray(this.__credentialProvider)) {
-            const AWS = require('aws-sdk')
-            const chain = new AWS.CredentialProviderChain(this.__credentialProvider);
-            return new Promise((resolve, reject) =>
-              chain.resolve((err, credentials) =>
-                err ? reject(err) : resolve(credentials)
-              )
-            );
-        }
-
         if (typeof this.__credentialProvider === 'function') {
             return this.__credentialProvider()
         }

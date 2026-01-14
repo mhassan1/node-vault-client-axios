@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.12.0] - 2026-01-14
+[0.12.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.11.0...v0.12.0
+
+- Remove support for aws sdk v2 in iam auth backend
+  - **BREAKING CHANGE:** aws sdk v2 credential providers are no longer supported
+
 ## [0.11.0] - 2025-06-18
 [0.11.0]: https://github.com/mhassan1/node-vault-client-axios/compare/v0.10.0...v0.11.0
 
